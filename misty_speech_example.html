@@ -265,6 +265,7 @@
               console.log(dropdownValues)
               console.log({voices})
               const u = new SpeechSynthesisUtterance('YOLO Misty')
+	      u.volume = 0.5
               u.rate = 0.9
               u.pitch = 1.7
               u.voice = voices[2] //0: alex, 1: fred, 2: samantha, 3: victoria
@@ -340,6 +341,7 @@
                     utteranceOptions: {
                         voice: voiceMap[thisVoice],//voices[2],
                         lang: "en-US",
+			volume: 0,
                         pitch: parseFloat(pitchInput.value),
                         rate: parseFloat(rateInput.value)
                     }
@@ -537,10 +539,10 @@
                         }
                         
                         let {
-                            lang, rate, pitch,voice
+                            lang, rate, pitch,voice, volume
                         } = utteranceOptions;
                         Object.assign(this.utterance, {
-                            lang, rate, pitch, voice
+                            lang, rate, pitch, voice, volume
                         });
                         
                     }
