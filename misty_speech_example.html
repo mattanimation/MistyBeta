@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Misty Speech Sample</title>
+        
+        <link rel="icon" type="image/png" href="https://www.mistyrobotics.com/wp-content/themes/misty-robotics/static/images/favicon-32x32.png">
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.0/dist/semantic.min.css">
+        <style>
+            .bg-color{
+                background-color: #e8eaff;
+            }
+            .centered{
+                text-align: center;
+            }
+            .fixed-height{
+              height: 400px;
+              overflow-y: scroll;
+            }
+
+            /* Toast - position it at the bottom and in the middle of the screen */
+            #toast {
+                visibility: hidden; /* Hidden by default. Visible on click */
+                min-width: 250px; /* Set a default minimum width */
+                margin-left: -125px; /* Divide value of min-width by 2 */
+                background-color: #333; /* Black background color */
+                color: #fff; /* White text color */
+                text-align: center; /* Centered text */
+                border-radius: 2px; /* Rounded borders */
+                padding: 16px; /* Padding */
+                position: fixed; /* Sit on top of the screen */
+                z-index: 1; /* Add a z-index if needed */
+                left: 50%; /* Center the toast */
+                bottom: 50px; /* 50px from the bottom */
+                border: 1px solid white; /* Solid white border helps it stand out with black background */
+            }
+
+            /* Show toast when clicking on a button (class added with JavaScript) */
+            #toast.show {
+                visibility: visible; /* Show the toast */
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="ui container text very padded raised segement">
+            <img class="ui image centered small circular" src="https://cdn-images-1.medium.com/max/1600/1*BgnmdPIv__dAS3ZTZVjmMQ.png"/>
+            <h1 class="ui header centered">Misty Speech Sample</h1>
+            <p class="centered">(testing purposes only)</p>
+            <div class="ui message">
+                <ol>
+                    <li>Enter your Misty's IP address</li>
+                    <li>Click Connect</li>
+                    <li>Enter the phrase you want Misty to say</li>
+                    <li>Click Send or Press the "return / enter" key</li>
+                </ol>
+            </div>
+        </div>
+        <!--
+        <h1 class="ui center aligned header">
+            <img class="ui circular image" src="https://pbs.twimg.com/profile_images/941025964976357376/0Ucz5UBz_400x400.jpg">
+            Misty
+        </h1>
+        -->
+        
+        <div class="ui raised very padded container segments">
+            <!-- IP input -->
+            <div class="ui segment fluid">
+                <div class="ui action left fluid input large labled">
+                    <div class="ui label">IP Address</div>
+                    <input type="text" placeholder="10.0.0.1" id="hostTxt">
+                    <div class="ui buttons">
+                        <button id="connectBtn" class="ui button purple">Connect</button>
+                        <button id="disconnectBtn" class="ui button teal">Disconnect</button>
+                    </div>
+                </div>
+            </div>
+            <!-- voice settings -->
+            <div class="ui segment fluid">
+                <div class="ui grid">
+                    <div class="five wide column">
+                        <div class="ui right pointing label">Voice </div>
+                        <div class="ui selection dropdown">
+                            <input type="hidden" name="voice">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Voice</div>
+                            <div class="menu">
+                                <div class="item" data-value="1">Male</div>
+                                <div class="item" data-value="0">Female</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="five wide column">
+                        <div class="ui fluid input large labled">
+                            <div class="ui right pointing label">Voice Pitch</div>
+                            <input type="number" id="pitchInput" value=1>   
+                        </div>
+                    </div>
+                    <div class="five wide column">
+                        <div class="ui fluid input large labled">
+                            <div class="ui right pointing label">Voice Rate</div>
+                            <input type="number" id="rateInput" value=1>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+            <!-- user input-->
+            <div class="ui segment">
+                <div class="ui action left fluid input">
+                    <div id="div_start">
+                    <button id="start_button" class="ui button basic circular tiny"><img alt="Start" style="width:35px; height:35px;" id="start_img" src="https://www.google.com/intl/en/chrome/assets/common/images/content/mic.gif"></button>
+                    </div>
+                  <input type="text" placeholder="Type your cool message for Misty here..." id="msgTxt">
+                  <button id="sendBtn" class="ui teal button">Send</button>
+                </div>
+                <div id="info">
+                  <p id="info_start">
+                    Click on the microphone icon and begin speaking for as long as you like.
+                  </p>
+                  <p id="info_speak_now" style="display:none">
+                    Speak now.
+                  </p>
+                  <p id="info_no_speech" style="display:none">
+                    No speech was detected. You may need to adjust your <a href=
+                    "//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">microphone
+                    settings</a>.
+                  </p>
+                  <p id="info_no_microphone" style="display:none">
+                    No microphone was found. Ensure that a microphone is installed and that
+                    <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+                    microphone settings</a> are configured correctly.
+                  </p>
+                  <p id="info_allow" style="display:none">
+                    Click the "Allow" button above to enable your microphone.
+                  </p>
+                  <p id="info_denied" style="display:none">
+                    Permission to use microphone was denied.
+                  </p>
+                  <p id="info_blocked" style="display:none">
+                    Permission to use microphone is blocked. To change, go to
+                    chrome://settings/contentExceptions#media-stream
+                  </p>
+                  <p id="info_upgrade" style="display:none">
+                    Web Speech API is not supported by this browser. Upgrade to <a href=
+                    "//www.google.com/chrome">Chrome</a> version 25 or later.
+                  </p>
+                </div>
+            </div>
+        </div>
+        <div class="ui" id="toast"></div>
+
+        <!-- stuff for semantic ui -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/components/dropdown.min.js" type="text/javascript"></script>
+        
+        <script src="js/MistyRobot/MistyRobot.js"></script>
+	    <script src="js/MistyRobot/MistyAjax.js"></script>
+	    <script src="js/MistyRobot/MistyAPI.js"></script>
+	    <script src="js/MistyRobot/MistyWebSocket.js"></script>
+        <script>
+
+            const connectBtn = document.getElementById('connectBtn')
+            const disconnectBtn = document.getElementById('disconnectBtn')
+            const msgTxt = document.getElementById('msgTxt')
+            const hostTxt = document.getElementById('hostTxt')
+            const sendBtn = document.getElementById('sendBtn')
+            const pitchInput = document.getElementById('pitchInput')
+            const rateInput = document.getElementById('rateInput')
+
+            const scrollOne = document.getElementById('scrollOne')
+
+            let dropdownValues = [];
+            $('.ui.dropdown')
+            .dropdown();
+
+            let robo = undefined
+            let ws = undefined
+            let ip = ''
+            let port = 80;
+            let wsHost = '127.0.0.1'
+            let wsPort = 8090
+            
+            function initMisty(cb){
+                ip = hostTxt.value;
+                try{
+                    if(robo === undefined){
+                        robo = new misty.apiClient.MistyRobot(ip, port, "3");
+                        console.log(robo);
+                        robo.GetDeviceInformation(function (data) {
+                            console.log(data);
+                            if (data[0].result) {
+                                showToastMessage("Connected successfully.");
+                                if(cb !== null || undefined)
+                                    cb();
+                            }
+                            else {
+                                showToastMessage("Having trouble connecting, please recheck the ip or name.");
+                            }
+                        });
+                        showToastMessage("Connecting to " + ip + "...", 1000);
+                    }else{
+                        showToastMessage("Misty is already Connected.");
+                    }
+                }catch(e){
+                    console.log(`ERROR: ${e}`)
+                }
+            }
+
+            // == Misty GUI Utils ==
+            async function showToastMessage(message, timeInMs = 4000) {
+                if (message) {
+                    var element = document.getElementById("toast");
+                    var snackbar = $('#toast').html(message);
+                    $('#statusMsg').html(message);
+                    element.className = "show";
+                    await sleep(timeInMs);
+                    element.className = element.className.replace("show", "");
+                }
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            //==  SPEECH RECOGNITION SETUP ==
+            var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+            var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+            var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+            const micRoot = 'https://www.google.com/intl/en/chrome/assets/common/images/content/'
+            const micAnim = micRoot+'mic-animate.gif'
+            const micPass = micRoot+'mic.gif'
+            const micSlash = micRoot+'mic-slash.gif'
+            const startBtn = document.getElementById('start_button')
+            const startImg = document.getElementById('start_img')
+
+            startBtn.onclick = startButton
+            // If you modify this array, also update default language / dialect below.
+            const lang = 'en-US'
+
+            let final_transcript = '';
+            let recognizing = false;
+            let ignore_onend;
+            let start_timestamp;
+
+            //list of words better suited to Misty Commands
+            const specialWords = ['move', 'go', 'listen', 'stop','turn', 'left', 'right']
+            const grammar = '#JSGF V1.0; grammar menuWords; public <menuWords> = ' + specialWords.join(' | ') + ' ;'
+
+            //speech synth
+            const synth = window.speechSynthesis
+            let voices = []
+            let voiceMap = {}
+            //intro speech
+            window.speechSynthesis.onvoiceschanged = ()=> {
+                
+              voices = synth.getVoices().filter(v => v.lang === lang)
+              dropdownValues = voices.map((v,i) => {return {name:v.name, value:i}})
+              dropdownValues[2]['selected']=true
+              voices.map(v=>{voiceMap[v.name] = v})
+              console.log(dropdownValues)
+              console.log({voices})
+              const u = new SpeechSynthesisUtterance('YOLO Misty')
+              u.rate = 0.9
+              u.pitch = 1.7
+              u.voice = voices[2] //0: alex, 1: fred, 2: samantha, 3: victoria
+              synth.speak(u)
+
+                $('.ui.dropdown')
+                .dropdown('change values', dropdownValues);
+            }
+
+            window.onbeforeunload = ()=> {
+                ws.onclose = ()=>{}; // disable onclose handler first
+                ws.close()
+            }
+
+            // when enter is pressed
+            msgTxt.onkeydown = (evt)=>{
+                if(evt.keyCode == 13)
+                {
+                    generateSpeech(evt)
+                }
+            }
+
+            connectBtn.onclick = (evt)=>{
+                startConnection()
+            }
+            
+            disconnectBtn.onclick = endConnection
+
+            function startConnection(){
+                try{
+                    initMisty(()=>{
+                        robo.Connect();
+			            showToastMessage("Connected to websockets");
+                    })
+                }
+                catch(err){
+                    console.log(err)
+                }
+            }
+
+            /*
+            function handleSocketMessage(event){
+                console.log("recieved event", event.data)
+                const msg = JSON.parse(event.data)
+                
+                if(msg.type === 'speak'){
+                    const u = new SpeechSynthesisUtterance(msg.text)
+                    u.voice = voices[2] // in future
+                    synth.speak(u)
+                }
+              
+            }*/
+
+            function endConnection(){
+                //ws.close()
+                showToastMessage("Connection Closed");
+                //doesn't have this yet
+                //robo.Disconnect();
+
+                //connectBtn.disabled = false
+            }
+
+            sendBtn.onclick = generateSpeech
+            
+            let ttsRecorder = null;
+            function generateSpeech(){
+                msgTxt.value
+                const thisVoice = $('.ui.dropdown').dropdown('get text');
+                console.log(thisVoice, voiceMap[thisVoice])
+
+                const speechData = {
+                    text: msgTxt.value, 
+                    utteranceOptions: {
+                        voice: voiceMap[thisVoice],//voices[2],
+                        lang: "en-US",
+                        pitch: parseFloat(pitchInput.value),
+                        rate: parseFloat(rateInput.value)
+                    }
+                }
+                console.log(speechData)
+                ttsRecorder = new SpeechSynthesisRecorder(speechData);
+
+                // ArrayBuffer
+                ttsRecorder.start()
+                .then(tts => tts.arrayBuffer())
+                .then(({tts, data}) => {
+                    //load to misty here
+                    if(robo !== undefined){
+                        let int8View = new Uint8Array(data);
+                        const tmpFileName = `tmp_${new Date().getTime()}.wav`
+                        console.log(`creating temp file: ${tmpFileName}`)
+
+                        robo.SaveAudioAssetToRobot(
+                            tmpFileName,
+                            int8View,
+                            (data) => {
+                                showToastMessage(tmpFileName + " saved");
+                                //remove the audio node
+                                document.body.removeChild(tts.audioNode);
+                                //delete from Misty
+                                robo.DeleteAudioClip(tmpFileName);
+                                showToastMessage(tmpFileName + " removed");
+                            }
+                        );
+                    }
+                })
+            }
+
+            //============ more speech stuff ============
+
+            startBtn.style.display = 'inline-block';
+            const recognition = new SpeechRecognition()
+            //const speechRecognitionList = new SpeechGrammarList();
+            //speechRecognitionList.addFromString(grammar, 1);
+            //recognition.grammars = speechRecognitionList
+            recognition.lang = lang
+            recognition.continuous = true
+            recognition.interimResults = true
+
+            recognition.onstart = () =>{
+                recognizing = true;
+                showInfo('info_speak_now');
+                startImg.src = micAnim
+            }
+
+          recognition.onerror = (event)=> {
+            if (event.error == 'no-speech') {
+              start_img.src = micPass
+              showInfo('info_no_speech');
+              ignore_onend = true;
+            }
+            if (event.error == 'audio-capture') {
+              start_img.src = micPass
+              showInfo('info_no_microphone');
+              ignore_onend = true;
+            }
+            if (event.error == 'not-allowed') {
+              if (event.timeStamp - start_timestamp < 100) {
+                showInfo('info_blocked');
+              } else {
+                showInfo('info_denied');
+              }
+              ignore_onend = true;
+            }
+          }
+
+          recognition.onend = ()=> {
+            recognizing = false;
+            if (ignore_onend) {
+              return;
+            }
+            startImg.src = micPass
+            if (!final_transcript) {
+              showInfo('info_start');
+              return;
+            }
+            showInfo('');
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+                const range = document.createRange();
+                range.selectNode(document.getElementById('msgTxt'));
+                window.getSelection().addRange(range);
+            }
+
+          }
+
+          recognition.onresult = (event) => {
+            let interim_transcript = '';
+            if (typeof(event.results) == 'undefined') {
+                recognition.onend = null;
+                recognition.stop();
+                console.log("undefined result...")
+                return;
+            }
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                final_transcript += event.results[i][0].transcript
+                //msgTxt.value = linebreak(final_transcript)
+                } else {
+                interim_transcript += event.results[i][0].transcript
+                msgTxt.value = linebreak(interim_transcript)
+                }
+            }
+            //final_transcript = capitalize(final_transcript)
+            //console.log(interim_transcript)
+          }
+
+          recognition.onnomatch = (evt)=>{
+            console.log("couldn't match text, no recognition")
+          }
+
+
+            const two_line = /\n\n/g;
+            const one_line = /\n/g;
+            function linebreak(s) {
+              return s.replace(two_line, '<p></p>').replace(one_line, '<br>')
+            }
+
+            const first_char = /\S/;
+            function capitalize(s) {
+              return s.replace(first_char, (m)=> { return m.toUpperCase(); })
+            }
+
+            function startButton(event) {
+              if (recognizing) {
+                recognition.stop();
+                return;
+              }
+              final_transcript = ''
+              recognition.start()
+              ignore_onend = false
+              msgTxt.innerHTML = ''
+              startImg.src = micSlash
+              showInfo('info_allow')
+              start_timestamp = event.timeStamp
+            }
+
+            function showInfo(s) {
+              if (s) {
+                for (let child = info.firstChild; child; child = child.nextSibling) {
+                  if (child.style) {
+                    child.style.display = child.id == s ? 'inline' : 'none';
+                  }
+                }
+                info.style.visibility = 'visible';
+              } else {
+                info.style.visibility = 'hidden';
+              }
+            }
+
+
+        </script>
+        <script>
+            //from stack overflow
+            // https://stackoverflow.com/questions/45003548/how-to-capture-generated-audio-from-window-speechsynthesis-speak-call
+            
+            class SpeechSynthesisRecorder {
+                constructor({text = "", utteranceOptions = {}, recorderOptions = {}, dataType = ""}) {
+                    if (text === "") throw new Error("no words to synthesize");
+                    this.dataType = dataType;
+                    this.text = text;
+                    this.mimeType = MediaRecorder.isTypeSupported("audio/webm; codecs=opus") 
+                                    ? "audio/webm; codecs=opus" : "audio/ogg; codecs=opus";
+                    this.utterance = new SpeechSynthesisUtterance(this.text);
+                    this.speechSynthesis = window.speechSynthesis;
+                    this.mediaStream_ = new MediaStream();
+                    this.mediaSource_ = new MediaSource();
+                    this.mediaRecorder = new MediaRecorder(this.mediaStream_, {
+                    mimeType: this.mimeType,
+                    bitsPerSecond: 256 * 8 * 1024
+                    });
+                    this.audioContext = new AudioContext();
+                    this.audioNode = new Audio();
+                    this.chunks = Array();
+                    if (utteranceOptions) {
+                        if (utteranceOptions.voice) {
+                            console.log("VOICE: ", utteranceOptions.voice)
+                            /*
+                            console.log(this.speechSynthesis.getVoices())
+                            this.speechSynthesis.onvoiceschanged = e => {
+                                
+                            const voice = this.speechSynthesis.getVoices().find(({
+                                name: _name
+                            }) => _name === utteranceOptions.voice);
+                            */
+                            //this.utterance.voice = voice;
+                            //console.log(voice, this.utterance);
+                            //}
+                            //this.speechSynthesis.getVoices();
+                        }
+                        
+                        let {
+                            lang, rate, pitch,voice
+                        } = utteranceOptions;
+                        Object.assign(this.utterance, {
+                            lang, rate, pitch, voice
+                        });
+                        
+                    }
+                    this.audioNode.controls = "controls";
+                    document.body.appendChild(this.audioNode);
+                }
+
+                start(text = "") {
+                    if (text) this.text = text;
+                    if (this.text === "") throw new Error("no words to synthesize");
+                    return navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    })
+                    .then(stream => new Promise(resolve => {
+                        const track = stream.getAudioTracks()[0];
+                        this.mediaStream_.addTrack(track);
+                        // return the current `MediaStream`
+                        if (this.dataType && this.dataType === "mediaStream") {
+                        resolve({tts:this, data:this.mediaStream_});
+                        };
+                        this.mediaRecorder.ondataavailable = event => {
+                        if (event.data.size > 0) {
+                            this.chunks.push(event.data);
+                        };
+                        };
+                        this.mediaRecorder.onstop = () => {
+                        track.stop();
+                        this.mediaStream_.getAudioTracks()[0].stop();
+                        this.mediaStream_.removeTrack(track);
+                        console.log(`Completed recording ${this.utterance.text}`, this.chunks);
+                        resolve(this);
+                        }
+                        this.mediaRecorder.start();
+                        this.utterance.onstart = () => {
+                        console.log(`Starting recording SpeechSynthesisUtterance ${this.utterance.text}`);
+                        }
+                        this.utterance.onend = () => {
+                        this.mediaRecorder.stop();
+                        console.log(`Ending recording SpeechSynthesisUtterance ${this.utterance.text}`);
+                        }
+                        this.speechSynthesis.speak(this.utterance);
+                    }));
+                }
+
+                blob() {
+                    if (!this.chunks.length) throw new Error("no data to return");
+                    return Promise.resolve({
+                    tts: this,
+                    data: this.chunks.length === 1 ? this.chunks[0] : new Blob(this.chunks, {
+                        type: this.mimeType
+                    })
+                    });
+                }
+
+                arrayBuffer(blob) {
+                    if (!this.chunks.length) throw new Error("no data to return");
+                    return new Promise(resolve => {
+                    const reader = new FileReader;
+                    reader.onload = e => resolve(({
+                        tts: this,
+                        data: reader.result
+                    }));
+                    reader.readAsArrayBuffer(blob ? new Blob(blob, {
+                        type: blob.type
+                    }) : this.chunks.length === 1 ? this.chunks[0] : new Blob(this.chunks, {
+                        type: this.mimeType
+                    }));
+                    });
+                }
+
+                audioBuffer() {
+                    if (!this.chunks.length) throw new Error("no data to return");
+                    return this.arrayBuffer()
+                    .then(ab => this.audioContext.decodeAudioData(ab))
+                    .then(buffer => ({
+                        tts: this,
+                        data: buffer
+                    }))
+                }
+
+                mediaSource() {
+                    if (!this.chunks.length) throw new Error("no data to return");
+                    return this.arrayBuffer()
+                    .then(({
+                        data: ab
+                    }) => new Promise((resolve, reject) => {
+                        this.mediaSource_.onsourceended = () => resolve({
+                        tts: this,
+                        data: this.mediaSource_
+                        });
+                        this.mediaSource_.onsourceopen = () => {
+                        if (MediaSource.isTypeSupported(this.mimeType)) {
+                            const sourceBuffer = this.mediaSource_.addSourceBuffer(this.mimeType);
+                            sourceBuffer.mode = "sequence"
+                            sourceBuffer.onupdateend = () =>
+                            this.mediaSource_.endOfStream();
+                            sourceBuffer.appendBuffer(ab);
+                        } else {
+                            reject(`${this.mimeType} is not supported`)
+                        }
+                        }
+                        this.audioNode.src = URL.createObjectURL(this.mediaSource_);
+                    }));
+                }
+
+                readableStream({size = 1024, controllerOptions = {}, rsOptions = {}}) {
+                    if (!this.chunks.length) throw new Error("no data to return");
+                    const src = this.chunks.slice(0);
+                    const chunk = size;
+                    return Promise.resolve({
+                    tts: this,
+                    data: new ReadableStream(controllerOptions || {
+                        start(controller) {
+                            console.log(src.length);
+                            controller.enqueue(src.splice(0, chunk))
+                        },
+                        pull(controller) {
+                            if (src.length = 0) controller.close();
+                            controller.enqueue(src.splice(0, chunk));
+                        }
+                    }, rsOptions)
+                    });
+                }
+            }
+
+                /*
+                // example test
+                let ttsRecorder = new SpeechSynthesisRecorder({
+                    text: "The revolution will not be televised", 
+                    utternanceOptions: {
+                        voice: "english-us espeak",
+                        lang: "en-US",
+                        pitch: .75,
+                        rate: 1
+                    }
+                });
+
+                // ArrayBuffer
+                ttsRecorder.start()
+                // `tts` : `SpeechSynthesisRecorder` instance, `data` : audio as `dataType` or method call result
+                .then(tts => tts.arrayBuffer())
+                .then(({tts, data}) => {
+                    // do stuff with `ArrayBuffer`, `AudioBuffer`, `Blob`,
+                    // `MediaSource`, `MediaStream`, `ReadableStream`
+                    // `data` : `ArrayBuffer`
+                    tts.audioNode.src = URL.createObjectURL(new Blob([data], {type:tts.mimeType}));
+                    tts.audioNode.title = tts.utterance.text;
+                    tts.audioNode.onloadedmetadata = () => {
+                        console.log(tts.audioNode.duration);
+                        tts.audioNode.play();
+                    }
+                })
+                */
+                /*
+                // AudioBuffer     
+                ttsRecorder.start()
+                .then(tts => tts.audioBuffer())
+                .then(({tts, data}) => {
+                // `data` : `AudioBuffer`
+                let source = tts.audioContext.createBufferSource();
+                source.buffer = data;
+                source.connect(tts.audioContext.destination);
+                source.start()
+                })
+
+                // Blob
+                ttsRecorder.start()
+                .then(tts => tts.blob())
+                .then(({tts, data}) => {
+                // `data` : `Blob`
+                tts.audioNode.src = URL.createObjectURL(blob);
+                tts.audioNode.title = tts.utterance.text;
+                tts.audioNode.onloadedmetadata = () => {
+                    console.log(tts.audioNode.duration);
+                    tts.audioNode.play();
+                }
+                })
+
+                // ReadableStream
+                ttsRecorder.start()
+                .then(tts => tts.readableStream())
+                .then(({tts, data}) => {
+                // `data` : `ReadableStream`
+                console.log(tts, data);
+                data.getReader().read().then(({value, done}) => {
+                    tts.audioNode.src = URL.createObjectURL(value[0]);
+                    tts.audioNode.title = tts.utterance.text;
+                    tts.audioNode.onloadedmetadata = () => {
+                    console.log(tts.audioNode.duration);
+                    tts.audioNode.play();
+                    }
+                })
+                })
+
+                // MediaSource
+                ttsRecorder.start()
+                .then(tts => tts.mediaSource())
+                .then(({tts, data}) => {
+                console.log(tts, data);
+                // `data` : `MediaSource`
+                tts.audioNode.srcObj = data;
+                tts.audioNode.title = tts.utterance.text;
+                tts.audioNode.onloadedmetadata = () => {
+                    console.log(tts.audioNode.duration);
+                    tts.audioNode.play();
+                }
+                })
+
+                // MediaStream
+                
+                let ttsRecorder = new SpeechSynthesisRecorder({
+                text: "The revolution will not be televised", 
+                utternanceOptions: {
+                    voice: "english-us espeak",
+                    lang: "en-US",
+                    pitch: .75,
+                    rate: 1
+                }, 
+                dataType:"mediaStream"
+                });
+                ttsRecorder.start()
+                .then(({tts, data}) => {
+                // `data` : `MediaStream`
+                // do stuff with active `MediaStream`
+                })
+                .catch(err => console.log(err))
+                */
+
+        </script>
+    </body>
+</html>
