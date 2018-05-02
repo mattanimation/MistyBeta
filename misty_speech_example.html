@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Misty Speech Sample</title>
+        <title>Misty Says</title>
         
         <link rel="icon" type="image/png" href="https://www.mistyrobotics.com/wp-content/themes/misty-robotics/static/images/favicon-32x32.png">
 
@@ -46,10 +46,11 @@
 
         <div class="ui container text very padded raised segement">
             <img class="ui image centered small circular" src="https://cdn-images-1.medium.com/max/1600/1*BgnmdPIv__dAS3ZTZVjmMQ.png"/>
-            <h1 class="ui header centered">Misty Speech Sample</h1>
+            <h1 class="ui header centered">Misty Says</h1>
             <p class="centered">(testing purposes only)</p>
             <div class="ui message">
-                <ol>
+                <div class="ui header">Instructions</div>
+                <ol class="ui list">
                     <li>Enter your Misty's IP address</li>
                     <li>Click Connect</li>
                     <li>Enter the phrase you want Misty to say</li>
@@ -79,30 +80,34 @@
             <!-- voice settings -->
             <div class="ui segment fluid">
                 <div class="ui grid">
-                    <div class="five wide column">
+                    <div class="four wide column">
                         <div class="ui right pointing label">Voice </div>
                         <div class="ui selection dropdown">
                             <input type="hidden" name="voice">
                             <i class="dropdown icon"></i>
                             <div class="default text">Voice</div>
                             <div class="menu">
-                                <div class="item" data-value="1">Male</div>
-                                <div class="item" data-value="0">Female</div>
                             </div>
                         </div>
                     </div>
-                    <div class="five wide column">
+                    <div class="four wide column">
                         <div class="ui fluid input large labled">
                             <div class="ui right pointing label">Voice Pitch</div>
                             <input type="number" id="pitchInput" value=1>   
                         </div>
                     </div>
-                    <div class="five wide column">
+                    <div class="four wide column">
                         <div class="ui fluid input large labled">
                             <div class="ui right pointing label">Voice Rate</div>
                             <input type="number" id="rateInput" value=1>
                         </div>
                     </div>
+                    <div class="four wide column">
+                            <div class="ui fluid input large labled">
+                                <div class="ui right pointing label">Voice Volume</div>
+                                <input type="number" id="volumeInput" value=0.5>
+                            </div>
+                        </div>
                 </div>
                 
                 
@@ -170,6 +175,7 @@
             const sendBtn = document.getElementById('sendBtn')
             const pitchInput = document.getElementById('pitchInput')
             const rateInput = document.getElementById('rateInput')
+            const volumeInput = document.getElementById('volumeInput')
 
             const scrollOne = document.getElementById('scrollOne')
 
@@ -181,8 +187,6 @@
             let ws = undefined
             let ip = ''
             let port = 80;
-            let wsHost = '127.0.0.1'
-            let wsPort = 8090
             
             function initMisty(cb){
                 ip = hostTxt.value;
@@ -265,7 +269,7 @@
               console.log(dropdownValues)
               console.log({voices})
               const u = new SpeechSynthesisUtterance('YOLO Misty')
-	      u.volume = 0.5
+              u.volume = 0.5
               u.rate = 0.9
               u.pitch = 1.7
               u.voice = voices[2] //0: alex, 1: fred, 2: samantha, 3: victoria
@@ -273,11 +277,6 @@
 
                 $('.ui.dropdown')
                 .dropdown('change values', dropdownValues);
-            }
-
-            window.onbeforeunload = ()=> {
-                ws.onclose = ()=>{}; // disable onclose handler first
-                ws.close()
             }
 
             // when enter is pressed
@@ -341,12 +340,12 @@
                     utteranceOptions: {
                         voice: voiceMap[thisVoice],//voices[2],
                         lang: "en-US",
-			volume: 0,
+                        volume: parseFloat(volumeInput.value),
                         pitch: parseFloat(pitchInput.value),
                         rate: parseFloat(rateInput.value)
                     }
                 }
-                console.log(speechData)
+                //console.log(speechData)
                 ttsRecorder = new SpeechSynthesisRecorder(speechData);
 
                 // ArrayBuffer
@@ -358,17 +357,16 @@
                         let int8View = new Uint8Array(data);
                         const tmpFileName = `tmp_${new Date().getTime()}.wav`
                         console.log(`creating temp file: ${tmpFileName}`)
-
                         robo.SaveAudioAssetToRobot(
                             tmpFileName,
                             int8View,
                             (data) => {
                                 showToastMessage(tmpFileName + " saved");
-                                //remove the audio node
-                                document.body.removeChild(tts.audioNode);
-                                //delete from Misty
-                                robo.DeleteAudioClip(tmpFileName);
-                                showToastMessage(tmpFileName + " removed");
+                                //delete from Misty after half a second
+                                setTimeout(()=>{
+                                    robo.DeleteAudioClip(tmpFileName);
+                                    showToastMessage(tmpFileName + " removed");
+                                }, 500)
                             }
                         );
                     }
@@ -515,39 +513,24 @@
                     this.mediaStream_ = new MediaStream();
                     this.mediaSource_ = new MediaSource();
                     this.mediaRecorder = new MediaRecorder(this.mediaStream_, {
-                    mimeType: this.mimeType,
-                    bitsPerSecond: 256 * 8 * 1024
+                        mimeType: this.mimeType,
+                        bitsPerSecond: 192000 //256 * 8 * 1024
                     });
                     this.audioContext = new AudioContext();
                     this.audioNode = new Audio();
                     this.chunks = Array();
                     if (utteranceOptions) {
-                        if (utteranceOptions.voice) {
-                            console.log("VOICE: ", utteranceOptions.voice)
-                            /*
-                            console.log(this.speechSynthesis.getVoices())
-                            this.speechSynthesis.onvoiceschanged = e => {
-                                
-                            const voice = this.speechSynthesis.getVoices().find(({
-                                name: _name
-                            }) => _name === utteranceOptions.voice);
-                            */
-                            //this.utterance.voice = voice;
-                            //console.log(voice, this.utterance);
-                            //}
-                            //this.speechSynthesis.getVoices();
-                        }
                         
                         let {
                             lang, rate, pitch,voice, volume
                         } = utteranceOptions;
+                        //console.log(lang, rate, pitch, voice, volume)
                         Object.assign(this.utterance, {
                             lang, rate, pitch, voice, volume
                         });
                         
                     }
-                    this.audioNode.controls = "controls";
-                    document.body.appendChild(this.audioNode);
+                    
                 }
 
                 start(text = "") {
@@ -561,27 +544,27 @@
                         this.mediaStream_.addTrack(track);
                         // return the current `MediaStream`
                         if (this.dataType && this.dataType === "mediaStream") {
-                        resolve({tts:this, data:this.mediaStream_});
+                            resolve({tts:this, data:this.mediaStream_});
                         };
                         this.mediaRecorder.ondataavailable = event => {
-                        if (event.data.size > 0) {
-                            this.chunks.push(event.data);
-                        };
+                            if (event.data.size > 0) {
+                                this.chunks.push(event.data);
+                            };
                         };
                         this.mediaRecorder.onstop = () => {
-                        track.stop();
-                        this.mediaStream_.getAudioTracks()[0].stop();
-                        this.mediaStream_.removeTrack(track);
-                        console.log(`Completed recording ${this.utterance.text}`, this.chunks);
-                        resolve(this);
+                            track.stop();
+                            this.mediaStream_.getAudioTracks()[0].stop();
+                            this.mediaStream_.removeTrack(track);
+                            console.log(`Completed recording ${this.utterance.text}`, this.chunks);
+                            resolve(this);
                         }
                         this.mediaRecorder.start();
                         this.utterance.onstart = () => {
-                        console.log(`Starting recording SpeechSynthesisUtterance ${this.utterance.text}`);
+                            console.log(`Starting recording SpeechSynthesisUtterance ${this.utterance.text}`);
                         }
                         this.utterance.onend = () => {
-                        this.mediaRecorder.stop();
-                        console.log(`Ending recording SpeechSynthesisUtterance ${this.utterance.text}`);
+                            this.mediaRecorder.stop();
+                            console.log(`Ending recording SpeechSynthesisUtterance ${this.utterance.text}`);
                         }
                         this.speechSynthesis.speak(this.utterance);
                     }));
@@ -590,10 +573,10 @@
                 blob() {
                     if (!this.chunks.length) throw new Error("no data to return");
                     return Promise.resolve({
-                    tts: this,
-                    data: this.chunks.length === 1 ? this.chunks[0] : new Blob(this.chunks, {
-                        type: this.mimeType
-                    })
+                        tts: this,
+                        data: this.chunks.length === 1 ? this.chunks[0] : new Blob(this.chunks, {
+                            type: this.mimeType
+                        })
                     });
                 }
 
