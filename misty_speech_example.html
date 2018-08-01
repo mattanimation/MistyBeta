@@ -162,10 +162,10 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/components/dropdown.min.js" type="text/javascript"></script>
         
-        <script src="js/MistyRobot/MistyRobot.js"></script>
-	    <script src="js/MistyRobot/MistyAjax.js"></script>
-	    <script src="js/MistyRobot/MistyAPI.js"></script>
-	    <script src="js/MistyRobot/MistyWebSocket.js"></script>
+        <script src="http://api-explorer.mistyrobotics.com/js/MistyRobot/MistyRobot.js"></script>
+	    <script src="http://api-explorer.mistyrobotics.com/js/MistyRobot/MistyAjax.js"></script>
+	    <script src="http://api-explorer.mistyrobotics.com/js/MistyRobot/MistyAPI.js"></script>
+	    <script src="http://api-explorer.mistyrobotics.com/js/MistyRobot/MistyWebSocket.js"></script>
         <script>
 
             const connectBtn = document.getElementById('connectBtn')
@@ -362,11 +362,12 @@
                             int8View,
                             (data) => {
                                 showToastMessage(tmpFileName + " saved");
-                                //delete from Misty after half a second
-                                setTimeout(()=>{
-                                    robo.DeleteAudioClip(tmpFileName);
-                                    showToastMessage(tmpFileName + " removed");
-                                }, 500)
+                                robo.PlayAudioClip(tmpFileName, ()=>{
+                                    // delete the temp file from Misty after playing it
+                                    robo.DeleteAudioClip(tmpFileName, ()=>{
+                                        showToastMessage(tmpFileName + " removed");
+                                    }); 
+                                });
                             }
                         );
                     }
