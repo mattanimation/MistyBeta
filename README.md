@@ -13,5 +13,7 @@ This is a sample where Misty will display a QR message on her face. you can choo
 
 ### Instructions
 
-* Place this file in the same directory as your MistyAPI Explorer files.
-* Open using Chrome or Firefox 
+* Open using Chrome or Firefox
+
+
+*only tested on MacOS
