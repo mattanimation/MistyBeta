@@ -363,8 +363,10 @@
                             (data) => {
                                 showToastMessage(tmpFileName + " saved");
                                 robo.PlayAudioClip(tmpFileName, ()=>{
+                                    console.log("playing audio clip on misty.")
                                     // delete the temp file from Misty after playing it
                                     robo.DeleteAudioClip(tmpFileName, ()=>{
+                                        console.log("file deleted...")
                                         showToastMessage(tmpFileName + " removed");
                                     }); 
                                 });

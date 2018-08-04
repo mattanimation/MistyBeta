@@ -221,18 +221,24 @@
                 console.log(tmp_filename, data, w,h, true, true, (res)=>{})
                 //upload
                 robo.SaveImageAssetToRobot(tmp_filename, data, w,h, true, true, (res)=>{
-                    console.log(res)
+                    console.log(`saved result: ${res}`)
                     if(res.success){
                         showToastMessage("image upload success")
+                        
+                        robo.ChangeDisplayImage(tmp_filename, (res)=>{
+                            console.log("displaying image on Misty...")
+                            console.log(res)
+                            //then revert after 8 seconds
+                            setTimeout(()=>{
+                                robo.RevertDisplay((res)=>{ console.log(res);})
+                                //remove image
+                                robot.DeleteImage(tmp_filename, (del_res)=>{
+                                    console.log("image deleted...");
+                                });
+                            }, 8000)
+                        });
                     }
                 });
-
-                //display
-                setTimeout(()=>{
-                    robo.ChangeDisplayImage(tmp_filename, (res)=>{
-                        console.log(res)
-                    });
-                }, 1000)
                
             }
 
