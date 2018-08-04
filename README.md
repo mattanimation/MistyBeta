@@ -10,6 +10,8 @@ NOTE: If you want to use the Speech to Text (STT) then you will need to host the
 ## QR
 This is a sample where Misty will display a QR message on her face. you can choose what the input to encode will be along with the dimensions and colors (have to do in the code for now).
 
+## Near Far
+A sample using the face detection and distance. Misty will change face expression and play sound with the near and far thresholds are met from the face tracking.
 
 ### Instructions
 
